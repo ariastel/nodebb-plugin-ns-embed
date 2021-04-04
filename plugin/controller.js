@@ -1,12 +1,12 @@
-const database = require('./database'),
-    logger = require('./logger'),
-    rules = require('./rules'),
-    Utils = require('./utils');
+const database = require('./database');
+const logger = require('./logger');
+const rules = require('./rules');
+const utils = require('./utils');
 
 const Controller = {};
 
 Controller.createRule = async function (payload) {
-    await database.createRule(Utils.payloadToRule(payload));
+    await database.createRule(utils.payloadToRule(payload));
     return await rules.invalidate();
 };
 
@@ -23,14 +23,14 @@ Controller.getAllRules = async function () {
 Controller.installDefaultRules = async function () {
     const data = require('../data/default-rules');
 
-    const rules = await database.getRules();
+    const installedRules = await database.getRules();
 
     // Filter rules to install
     const rulesToInstall = [];
     for (let i = 0, len = data.rules.length; i < len; ++i) {
         const defaultRule = data.rules[i];
 
-        if (Utils.isInList('name', defaultRule.name, rules)) {
+        if (utils.isInList('name', defaultRule.name, installedRules)) {
             logger.verbose(`Rule "${defaultRule.displayName}" is skipped. Reason: already installed`);
         } else {
             rulesToInstall.push(defaultRule);
@@ -40,10 +40,10 @@ Controller.installDefaultRules = async function () {
     const installed = [];
     for (const ruleToInstall of rulesToInstall) {
         try {
-            await database.createRule(Utils.payloadToRule(ruleToInstall));
-            installed.push(defaultRule);
+            await database.createRule(utils.payloadToRule(ruleToInstall));
+            installed.push(ruleToInstall);
         } catch (error) {
-            logger.error(`Rule "${defaultRule.displayName}" is errored. Reason: ${error}`);
+            logger.error(`Rule "${ruleToInstall.displayName}" is errored. Reason: ${error}`);
         }
     }
     
@@ -70,7 +70,7 @@ Controller.parsePost = async function (payload) {
 };
 
 Controller.saveRule = async function (rule) {
-    await database.updateRule(rule.rid, Utils.payloadToRule(rule));
+    await database.updateRule(rule.rid, utils.payloadToRule(rule));
     const updatedRule = await database.getRule(rule.rid);
     await rules.invalidate();
     return updatedRule;
