@@ -1,5 +1,5 @@
-import {expect} from 'chai';
-import Rules from '../data/default-rules.json';
+const { expect } = require('chai');
+const Rules = require('../data/default-rules.json');
 
 const findRule = (name) => {
     for (let rule of Rules.rules) {
@@ -7,22 +7,22 @@ const findRule = (name) => {
             return rule;
         }
     }
-}, repl        = '---';
+}, repl = '---';
 
 describe('RegExp Rules', () => {
 
     describe('Youtube', () => {
         let regex;
-        const regular           = 'https://www.youtube.com/watch?v=Dwrm0X7RL0c',
-              regularNoProtocol = 'www.youtube.com/watch?v=Dwrm0X7RL0c',
-              regularNoZone     = 'https://youtube.com/watch?v=Dwrm0X7RL0c',
-              profileUrl        = 'https://www.youtube.com/user/machinima',
-              channelUrl        = 'https://www.youtube.com/channel/UC0fDG3byEcMtbOqPMymDNbw',
-              regularId         = 'Dwrm0X7RL0c';
+        const regular = 'https://www.youtube.com/watch?v=Dwrm0X7RL0c',
+            regularNoProtocol = 'www.youtube.com/watch?v=Dwrm0X7RL0c',
+            regularNoZone = 'https://youtube.com/watch?v=Dwrm0X7RL0c',
+            profileUrl = 'https://www.youtube.com/user/machinima',
+            channelUrl = 'https://www.youtube.com/channel/UC0fDG3byEcMtbOqPMymDNbw',
+            regularId = 'Dwrm0X7RL0c';
 
-        const short           = 'https://youtu.be/opgt8ZVqP_g',
-              shortNoProtocol = 'youtu.be/opgt8ZVqP_g',
-              shortId         = 'opgt8ZVqP_g';
+        const short = 'https://youtu.be/opgt8ZVqP_g',
+            shortNoProtocol = 'youtu.be/opgt8ZVqP_g',
+            shortId = 'opgt8ZVqP_g';
 
         beforeEach(() => {
             regex = new RegExp(findRule('youtube').regex, 'g');
@@ -64,11 +64,11 @@ describe('RegExp Rules', () => {
     describe('Twitch', () => {
         let regexLive, regexVod;
 
-        const video          = 'https://www.twitch.tv/chess/v/114095976',
-              channel        = 'https://www.twitch.tv/chess',
-              videoAnchorTag = '<a href="https://www.twitch.tv/astreamer/v/888" target="_blank" rel="nofollow">Some Text</a>',
-              liveAnchorTag  = '<a href="https://www.twitch.tv/astreamer" target="_blank" rel="nofollow">Watch Live</a>',
-              emptyAnchorTag = '<a href="https://www.twitch.tv/astreamer" target="_blank" rel="nofollow"></a>';
+        const video = 'https://www.twitch.tv/chess/v/114095976',
+            channel = 'https://www.twitch.tv/chess',
+            videoAnchorTag = '<a href="https://www.twitch.tv/astreamer/v/888" target="_blank" rel="nofollow">Some Text</a>',
+            liveAnchorTag = '<a href="https://www.twitch.tv/astreamer" target="_blank" rel="nofollow">Watch Live</a>',
+            emptyAnchorTag = '<a href="https://www.twitch.tv/astreamer" target="_blank" rel="nofollow"></a>';
 
         beforeEach(() => {
             regexLive = new RegExp(findRule('twitch-live').regex, 'g');
