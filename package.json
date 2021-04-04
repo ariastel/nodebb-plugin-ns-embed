@@ -28,9 +28,7 @@
     "url": "https://github.com/ariastel/nodebb-plugin-ns-embed/issues"
   },
   "homepage": "https://github.com/ariastel/nodebb-plugin-ns-embed#readme",
-  "dependencies": {
-    "winston": "^3.3.3"
-  },
+  "dependencies": {},
   "devDependencies": {
     "chai": "^4.2.0",
     "mocha": "^6.2.2"

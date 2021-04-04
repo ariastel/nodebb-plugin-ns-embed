@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const winston = require('winston');
+const winston = require.main.require('winston');
 
 function formatMessage(msg) {
     return `[ns-embed] ${msg}`;
