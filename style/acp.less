@@ -1,10 +1,11 @@
 @import "_palette.less";
 @import "_vars.less";
 
+
 .plugin-embed {
   .actions {
     button + button {
-      margin-left: $margin-s;
+      margin-left: @margin-s;
     }
   }
 
@@ -14,17 +15,25 @@
 
     .item {
       cursor: pointer;
-      border-radius: $margin-xs;
-      border: 1px solid palette(Grey, 200);
+      border-radius: @margin-xs;
       width: 160px;
-      padding: $margin;
-      margin: $margin-xs;
+      padding: @margin;
+      margin: @margin-xs;
       flex: 0 1 auto;
+      
+      .palette('Grey', '200');
+      border: 1px solid @palette;
 
       &.selected {
-        border: 1px solid palette(Blue, 700);
-        background-color: palette(Blue, 500);
-        color: palette(White, 500);
+        
+        .palette('Blue', '700');
+        border: 1px solid @palette;
+
+        .palette('Blue', '500');
+        background-color: @palette;
+
+        .palette-text('Blue', '500');
+        color: @palette-text;
       }
 
     }
@@ -33,6 +42,8 @@
   .utils-info {
     font-size: 0.8em;
     line-height: 1.2em;
-    color: palette(Blue Grey, 700);
+    
+    .palette('Blue Grey', '200');
+    color: @palette;
   }
 }
