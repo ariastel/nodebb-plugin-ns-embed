@@ -38,7 +38,7 @@ Database.getRule = async function (id) {
 };
 
 Database.getRules = async function () {
-    const ids = db.getSortedSetRange(constants.NAMESPACE + ':rule', 0, -1);
+    const ids = await db.getSortedSetRange(constants.NAMESPACE + ':rule', 0, -1);
     if (!ids.length) {
         return ids;
     }

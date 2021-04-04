@@ -6,6 +6,8 @@ const { adminSockets, serverSockets } = require('./nodebb');
 
 const emitNamespace = 'admin.plugins.' + constants.SOCKET_NAMESPACE + '.';
 
+const Sockets = {};
+
 Sockets.init = function () {
     adminSockets[constants.SOCKET_NAMESPACE] = {};
 

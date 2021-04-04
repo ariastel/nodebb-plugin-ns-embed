@@ -21,6 +21,10 @@
     {
       "hook": "filter:parse.raw",
       "method": "hooks.filters.parseRaw"
+    },
+    {
+      "hook": "filter:sanitize.config",
+      "method": "hooks.filters.configSanitizer"
     }
   ],
   "less": [
@@ -35,8 +39,8 @@
   "scripts": [],
   "staticDirs": {
     "acp": "./client/acp",
-    "css": "./public/css",
     "js": "./public/js"
   },
-  "templates": "./public/templates"
+  "templates": "./public/templates",
+	"settingsRoute": "/admin/plugins/embed"
 }

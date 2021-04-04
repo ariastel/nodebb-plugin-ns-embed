@@ -12,14 +12,15 @@ Controller.createRule = async function (payload) {
 
 Controller.deleteRule = async function (rule) {
     await database.deleteRule(rule.rid);
-    return await rules.invalidate();
+    await rules.invalidate();
+    return rule;
 };
 
 Controller.getAllRules = async function () {
     return await database.getRules();
 };
 
-Controller.installDefaultRules = async function (done) {
+Controller.installDefaultRules = async function () {
     const data = require('../data/default-rules');
 
     const rules = await database.getRules();
@@ -70,9 +71,9 @@ Controller.parsePost = async function (payload) {
 
 Controller.saveRule = async function (rule) {
     await database.updateRule(rule.rid, Utils.payloadToRule(rule));
-    const rule = await database.getRule(rule.rid);
+    const updatedRule = await database.getRule(rule.rid);
     await rules.invalidate();
-    return rule;
+    return updatedRule;
 };
 
 module.exports = Controller;
