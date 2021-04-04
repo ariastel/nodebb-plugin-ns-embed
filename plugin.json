@@ -29,6 +29,9 @@
   "acpScripts": [
     "public/js/acp.js"
   ],
+  "acpLessFiles": [
+    "style/acp.less"
+  ],
   "scripts": [],
   "staticDirs": {
     "acp": "./client/acp",
