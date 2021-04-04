@@ -1,62 +1,54 @@
 /**
  * Created by Nicolas on 10/25/15.
  */
-(function (Rules) {
-    'use strict';
+'use strict';
 
-    var database = require('./database'),
-        logger   = require('./logger'),
-        nodebb   = require('./nodebb');
+const database = require('./database');
+const logger = require('./logger');
+const { cache } = require('./nodebb');
 
-    var cache = nodebb.cache;
+const rulesList = [];
 
-    var rulesList = [];
+const Rules = {};
 
-    Rules.invalidate = function (done) {
-        database.getRules(function (error, rules) {
-            if (error) {
-                return done(error);
-            }
+Rules.invalidate = async function () {
 
-            logger.log('verbose', 'Updating rules...');
+    const rules = await database.getRules();
 
-            // Re-compile regular expressions
-            var i, len = rules.length, rule, ruleEntity;
-            rulesList.length = 0;
-            for (i = 0; i < len; ++i) {
-                rule = rules[i];
-                try {
-                    ruleEntity = {
-                        match      : new RegExp(rule.regex, "g"),
-                        replacement: rule.replacement
-                    };
-                    rulesList.push(ruleEntity);
-                } catch (e) {
-                    console.error('Rule is skipped', e);
-                }
-            }
+    logger.verbose('Updating rules...');
 
-            cache.reset();
+    // Re-compile regular expressions
+    rulesList.length = 0;
 
-            logger.log('verbose', 'Updating rule list, total rules: %d', rulesList.length);
-
-            done();
-        });
-    };
-
-    Rules.parse = function (content, done) {
-        if (content) {
-            var i = 0, len = rulesList.length, rule;
-
-            for (i; i < len; ++i) {
-                rule = rulesList[i];
-                content = content.replace(rule.match, rule.replacement);
-            }
-
-            done(null, content);
-        } else {
-            done(null, content);
+    for (let i = 0, len = rules.length; i < len; ++i) {
+        const rule = rules[i];
+        try {
+            const ruleEntity = {
+                match: new RegExp(rule.regex, "g"),
+                replacement: rule.replacement
+            };
+            rulesList.push(ruleEntity);
+        } catch (e) {
+            console.error('Rule is skipped', e);
         }
-    };
+    }
 
-})(module.exports);
+    cache.reset();
+
+    logger.verbose(`Updating rule list, total rules: ${rulesList.length}`);
+};
+
+Rules.parse = async function (content) {
+
+    if (!content) {
+        return content;
+    }
+
+    for (let i = 0, len = rulesList.length; i < len; ++i) {
+        const rule = rulesList[i];
+        content = content.replace(rule.match, rule.replacement);
+    }
+    return content;
+};
+
+module.exports = Rules;

@@ -1,5 +1,5 @@
 {
-  "name": "nodebb-plugin-ns-embed",
+  "name": "@ariastel/nodebb-plugin-ns-embed",
   "version": "4.0.0",
   "description": "Embed media and rich content in posts: youtube, vimeo, twitch etc. All embeds are based on the rules. You are encouraged to build your own rules to embed everything what is embeddable.",
   "main": "./plugin/index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/NicolasSiver/nodebb-plugin-ns-embed.git"
+    "url": "git+https://github.com/ariastel/nodebb-plugin-ns-embed.git"
   },
   "keywords": [
     "embed",
@@ -19,29 +19,23 @@
     "ria"
   ],
   "author": "Nicolas Siver",
+  "contributors": [
+    "Antosik <grig_anton96@mail.ru>",
+    "Ariastel Team <ariastel@iamantosik.me> (https://github.com/ariastel)"
+  ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/NicolasSiver/nodebb-plugin-ns-embed/issues"
+    "url": "https://github.com/ariastel/nodebb-plugin-ns-embed/issues"
   },
-  "homepage": "https://github.com/NicolasSiver/nodebb-plugin-ns-embed#readme",
+  "homepage": "https://github.com/ariastel/nodebb-plugin-ns-embed#readme",
   "dependencies": {
-    "async": "^3.1.0",
-    "object-assign": "^4.1.1",
-    "winston": "^2.3.1"
+    "winston": "^3.3.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.7.7",
-    "@babel/preset-env": "^7.7.7",
-    "@babel/register": "^7.7.7",
-    "browser-sync": "^2.26.7",
     "chai": "^4.2.0",
-    "gulp": "^3.9.0",
-    "gulp-autoprefixer": "^3.1.1",
-    "gulp-rename": "^1.2.2",
-    "gulp-sass": "^2.3.1",
     "mocha": "^6.2.2"
   },
   "nbbpm": {
-    "compatibility": "~1.13.x"
+    "compatibility": "^1.16.x"
   }
 }

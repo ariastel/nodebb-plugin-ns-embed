@@ -2,16 +2,12 @@
   "id": "nodebb-plugin-ns-embed",
   "name": "NodeBB Embed",
   "description": "Embed media and rich content in posts: Youtube, Vimeo, Twitch etc. All embeds are based on the rules. You are encouraged to build your own rules to embed everything what is embeddable.",
-  "url": "https://github.com/NicolasSiver/nodebb-plugin-ns-embed",
+  "url": "https://github.com/ariastel/nodebb-plugin-ns-embed",
   "library": "./plugin/index.js",
   "hooks": [
     {
       "hook": "filter:admin.header.build",
       "method": "hooks.filters.adminHeaderBuild"
-    },
-    {
-      "hook": "filter:admin.scripts.get",
-      "method": "hooks.filters.adminScripts"
     },
     {
       "hook": "static:app.load",

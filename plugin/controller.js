@@ -1,126 +1,78 @@
-const async = require('async');
-
 const database = require('./database'),
-      logger   = require('./logger'),
-      rules    = require('./rules'),
-      Utils    = require('./utils');
+    logger = require('./logger'),
+    rules = require('./rules'),
+    Utils = require('./utils');
 
-(function (Controller) {
+const Controller = {};
 
-    Controller.createRule = function (payload, done) {
-        async.series([
-            async.apply(database.createRule, Utils.payloadToRule(payload)),
-            async.apply(rules.invalidate)
-        ], done);
-    };
+Controller.createRule = async function (payload) {
+    await database.createRule(Utils.payloadToRule(payload));
+    return await rules.invalidate();
+};
 
-    Controller.deleteRule = function (rule, done) {
-        async.series([
-            async.apply(database.deleteRule, rule.rid),
-            async.apply(rules.invalidate)
-        ], function (error) {
-            if (error) {
-                return done(error);
-            }
+Controller.deleteRule = async function (rule) {
+    await database.deleteRule(rule.rid);
+    return await rules.invalidate();
+};
 
-            done(null, rule);
-        });
-    };
+Controller.getAllRules = async function () {
+    return await database.getRules();
+};
 
-    Controller.getAllRules = function (done) {
-        database.getRules(done);
-    };
+Controller.installDefaultRules = async function (done) {
+    const data = require('../data/default-rules');
 
-    Controller.installDefaultRules = function (done) {
-        let data = require('../data/default-rules');
-        let installed = [];
+    const rules = await database.getRules();
 
-        async.waterfall([
-            async.apply(database.getRules),
-            function (rules, callback) {
-                let toInstall = [], i = 0, len = data.rules.length, defaultRule;
+    // Filter rules to install
+    const rulesToInstall = [];
+    for (let i = 0, len = data.rules.length; i < len; ++i) {
+        const defaultRule = data.rules[i];
 
-                for (i; i < len; ++i) {
-                    defaultRule = data.rules[i];
+        if (Utils.isInList('name', defaultRule.name, rules)) {
+            logger.verbose(`Rule "${defaultRule.displayName}" is skipped. Reason: already installed`);
+        } else {
+            rulesToInstall.push(defaultRule);
+        }
+    }
 
-                    if (Utils.isInList('name', defaultRule.name, rules)) {
-                        logger.log('verbose', 'Rule "%s" is skipped. Reason: already installed', defaultRule.displayName);
-                    } else {
-                        toInstall.push(defaultRule);
-                    }
-                }
+    const installed = [];
+    for (const ruleToInstall of rulesToInstall) {
+        try {
+            await database.createRule(Utils.payloadToRule(ruleToInstall));
+            installed.push(defaultRule);
+        } catch (error) {
+            logger.error(`Rule "${defaultRule.displayName}" is errored. Reason: ${error}`);
+        }
+    }
+    
+    if (installed.length > 0) {
+        await rules.invalidate();
+    }
 
-                callback(null, toInstall);
-            },
-            function (install, callback) {
-                async.eachSeries(install, function (defaultRule, next) {
-                    database.createRule(Utils.payloadToRule(defaultRule), function (error) {
-                        if (error) {
-                            return next(error);
-                        }
-                        installed.push(defaultRule);
-                        next();
-                    });
-                }, callback);
-            },
-            function (callback) {
-                if (installed.length > 0) {
-                    rules.invalidate(callback);
-                } else {
-                    callback(null);
-                }
-            }
-        ], function (error) {
-            if (error) {
-                return done(error);
-            }
+    return installed.map(rule => rule.displayName);
+};
 
-            done(null, installed.map(function (rule) {
-                return rule.displayName;
-            }));
-        });
-    };
+Controller.parseContent = async function (content) {
+    return await rules.parse(content);
+};
 
-    Controller.parseContent = function (content, done) {
-        rules.parse(content, function (error, result) {
-            if (error == null) {
-                done(null, result);
-            } else {
-                done(error);
-            }
-        });
-    };
+/**
+ * Main parsing method.
+ * Performs replacements on content field.
+ *
+ * @param {Object} payload {object} includes full post entity Payload.postData.content
+ */
+Controller.parsePost = async function (payload) {
+    payload.postData.content = await Controller.parseContent(payload.postData.content);
+    return payload;
+};
 
-    /**
-     * Main parsing method.
-     * Performs replacements on content field.
-     *
-     * @param {Object} payload {object} includes full post entity Payload.postData.content
-     * @param {Function} done returns updated content
-     */
-    Controller.parsePost = function (payload, done) {
-        Controller.parseContent(payload.postData.content, function (error, content) {
-            if (error == null) {
-                payload.postData.content = content;
-                done(null, payload);
-            } else {
-                done(error);
-            }
-        });
-    };
+Controller.saveRule = async function (rule) {
+    await database.updateRule(rule.rid, Utils.payloadToRule(rule));
+    const rule = await database.getRule(rule.rid);
+    await rules.invalidate();
+    return rule;
+};
 
-    Controller.saveRule = function (rule, done) {
-        async.series({
-            save: async.apply(database.updateRule, rule.rid, Utils.payloadToRule(rule)),
-            rule: async.apply(database.getRule, rule.rid),
-            sync: async.apply(rules.invalidate)
-        }, function (error, results) {
-            if (error) {
-                return done(error);
-            }
-
-            done(null, results.rule)
-        });
-    };
-
-})(module.exports);
+module.exports = Controller;

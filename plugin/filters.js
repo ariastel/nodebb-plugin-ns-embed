@@ -1,28 +1,24 @@
-(function (Filters) {
-    'use strict';
+'use strict';
 
-    var controller = require('./controller');
+const controller = require('./controller');
 
-    Filters.adminHeaderBuild = function (header, callback) {
-        header.plugins.push({
-            route: '/plugins/embed',
-            icon : 'fa-share-alt',
-            name : 'Embed'
-        });
-        callback(null, header);
-    };
+const Filters = {};
 
-    Filters.adminScripts = function (list, callback) {
-        list.push('https://checkout.stripe.com/checkout.js');
-        callback(null, list);
-    };
+Filters.adminHeaderBuild = async function (header) {
+    header.plugins.push({
+        route: '/plugins/embed',
+        icon: 'fa-share-alt',
+        name: 'Embed'
+    });
+    return header;
+};
 
-    Filters.parsePost = function (payload, callback) {
-        controller.parsePost(payload, callback);
-    };
+Filters.parsePost = async function (payload) {
+    return await controller.parsePost(payload);
+};
 
-    Filters.parseRaw = function (payload, callback) {
-        controller.parseContent(payload, callback);
-    }
+Filters.parseRaw = async function (payload) {
+    return await controller.parseContent(payload);
+}
 
-})(module.exports);
+module.exports = Filters;

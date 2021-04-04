@@ -1,49 +1,44 @@
-(function (Sockets) {
-    'use strict';
+'use strict';
 
-    var constants  = require('./constants'),
-        controller = require('./controller'),
-        nodebb     = require('./nodebb');
+const constants = require('./constants');
+const controller = require('./controller');
+const { adminSockets, serverSockets } = require('./nodebb');
 
-    var adminSockets  = nodebb.adminSockets,
-        serverSockets = nodebb.serverSockets,
-        emitNamespace = 'admin.plugins.' + constants.SOCKET_NAMESPACE + '.';
+const emitNamespace = 'admin.plugins.' + constants.SOCKET_NAMESPACE + '.';
 
-    Sockets.init = function (callback) {
-        adminSockets[constants.SOCKET_NAMESPACE] = {};
+Sockets.init = function () {
+    adminSockets[constants.SOCKET_NAMESPACE] = {};
 
-        //Acknowledgements
-        adminSockets[constants.SOCKET_NAMESPACE].defaultRulesInstall = Sockets.defaultRulesInstall;
-        adminSockets[constants.SOCKET_NAMESPACE].embedRulesGet = Sockets.embedRulesGet;
-        adminSockets[constants.SOCKET_NAMESPACE].ruleCreate = Sockets.ruleCreate;
-        adminSockets[constants.SOCKET_NAMESPACE].ruleDelete = Sockets.ruleDelete;
-        adminSockets[constants.SOCKET_NAMESPACE].ruleSave = Sockets.ruleSave;
+    // Acknowledgements
+    adminSockets[constants.SOCKET_NAMESPACE].defaultRulesInstall = Sockets.defaultRulesInstall;
+    adminSockets[constants.SOCKET_NAMESPACE].embedRulesGet = Sockets.embedRulesGet;
+    adminSockets[constants.SOCKET_NAMESPACE].ruleCreate = Sockets.ruleCreate;
+    adminSockets[constants.SOCKET_NAMESPACE].ruleDelete = Sockets.ruleDelete;
+    adminSockets[constants.SOCKET_NAMESPACE].ruleSave = Sockets.ruleSave;
+};
 
-        callback();
-    };
+Sockets.defaultRulesInstall = async function () {
+    return await controller.installDefaultRules();
+};
 
-    Sockets.defaultRulesInstall = function (socket, payload, callback) {
-        controller.installDefaultRules(callback);
-    };
+Sockets.embedRulesGet = async function () {
+    return await controller.getAllRules();
+};
 
-    Sockets.embedRulesGet = function (socket, payload, callback) {
-        controller.getAllRules(callback);
-    };
+Sockets.emit = async function (eventName, payload) {
+    return await serverSockets.emit(emitNamespace + eventName, payload);
+};
 
-    Sockets.emit = function (eventName, payload) {
-        serverSockets.emit(emitNamespace + eventName, payload);
-    };
+Sockets.ruleCreate = async function (_, payload) {
+    return await controller.createRule(payload);
+};
 
-    Sockets.ruleCreate = function (socket, payload, callback) {
-        controller.createRule(payload, callback);
-    };
+Sockets.ruleDelete = async function (_, payload) {
+    return await controller.deleteRule(payload);
+};
 
-    Sockets.ruleDelete = function (socket, payload, callback) {
-        controller.deleteRule(payload, callback);
-    };
+Sockets.ruleSave = async function (_, payload) {
+    return await controller.saveRule(payload);
+};
 
-    Sockets.ruleSave = function (socket, payload, callback) {
-        controller.saveRule(payload, callback);
-    };
-
-})(module.exports);
+module.exports = Sockets;

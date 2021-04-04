@@ -1,22 +1,18 @@
 function isInList(field, value, list) {
-    let i, listItem;
-    let result = false;
-    let len = list.length;
 
-    for (i = 0; i < len; ++i) {
-        listItem = list[i];
+    for (let i = 0, len = list.length; i < len; ++i) {
+        const listItem = list[i];
 
         if (listItem[field] === value) {
-            result = true;
-            break;
+            return true;
         }
     }
 
-    return result;
+    return false;
 }
 
 function payloadToRule(payload) {
-    let rule = {};
+    const rule = {};
 
     // TODO Validation?
 
@@ -29,4 +25,4 @@ function payloadToRule(payload) {
     return rule;
 }
 
-module.exports = {isInList, payloadToRule};
+module.exports = { isInList, payloadToRule };

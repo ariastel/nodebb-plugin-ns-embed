@@ -1,23 +1,16 @@
 /**
  * Created by Nicolas on 10/25/15.
  */
-(function (Module) {
-    'use strict';
+'use strict';
 
-    var winston = require('winston');
+const winston = require('winston');
 
-    Module.exports = new (winston.Logger)({
-        transports: [
-            new (winston.transports.Console)({
-                colorize : true,
-                timestamp: function () {
-                    var date = new Date();
-                    return date.getDate() + '/' + (date.getMonth() + 1) + ' ' + date.toTimeString().substr(0, 5) + ' [' + global.process.pid + ']';
-                },
-                level    : global.env === 'production' ? 'info' : 'verbose',
-                label    : 'plugins/embed'
-            })
-        ]
-    });
+function formatMessage(msg) {
+    return `[ns-embed] ${msg}`;
+}
 
-})(module);
+module.exports = {
+    verbose: (msg) => winston.verbose(formatMessage(msg)),
+    error: (msg) => winston.error(formatMessage(msg)),
+    warn: (msg) => winston.warn(formatMessage(msg)),
+};

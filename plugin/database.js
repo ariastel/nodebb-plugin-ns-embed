@@ -1,74 +1,53 @@
 /**
  * Created by Nicolas on 10/23/15.
  */
-(function (Database) {
-    'use strict';
+'use strict';
 
-    var async        = require('async'),
-        objectAssign = require('object-assign'),
+const { db } = require('./nodebb');
+const constants = require('./constants');
 
-        nodebb       = require('./nodebb'),
-        constants    = require('./constants');
+const Database = {};
 
-    var db = nodebb.db;
+Database.createRule = async function (data) {
+    const id = await db.incrObjectField('global', constants.COUNTER);
 
-    Database.createRule = function (data, done) {
-        async.waterfall([
-            async.apply(db.incrObjectField, 'global', constants.COUNTER),
-            function (id, next) {
-                var createTime = Date.now();
-                var additionalData = {
-                    rid       : id,
-                    createtime: createTime
-                };
-                var ruleData = objectAssign(data, additionalData);
-
-                async.parallel([
-                    async.apply(db.sortedSetAdd, constants.NAMESPACE + ':rule', createTime, id),
-                    async.apply(db.setObject, constants.NAMESPACE + ':rule:' + id, ruleData)
-                ], function (error) {
-                    if (error) {
-                        return next(error);
-                    }
-                    next(null, ruleData);
-                });
-            }
-        ], done);
+    const createTime = Date.now();
+    const additionalData = {
+        rid: id,
+        createtime: createTime
     };
+    const ruleData = Object.assign(data, additionalData);
 
-    Database.deleteRule = function (id, done) {
-        async.parallel([
-            async.apply(db.delete, constants.NAMESPACE + ':rule:' + id),
-            async.apply(db.sortedSetRemove, constants.NAMESPACE + ':rule', id)
-        ], function (error) {
-            if (error) {
-                return done(error);
-            }
-            //Filter null responses from DB delete methods
-            done(null);
-        });
-    };
+    await Promise.all([
+        db.sortedSetAdd(constants.NAMESPACE + ':rule', createTime, id),
+        db.setObject(constants.NAMESPACE + ':rule:' + id, ruleData)
+    ])
 
-    Database.getRule = function (id, done) {
-        db.getObject(constants.NAMESPACE + ':rule:' + id, done);
-    };
+    return ruleData;
+};
 
-    Database.getRules = function (done) {
-        async.waterfall([
-            async.apply(db.getSortedSetRange, constants.NAMESPACE + ':rule', 0, -1),
-            function (ids, next) {
-                if (!ids.length) {
-                    return next(null, ids);
-                }
-                db.getObjects(ids.map(function (id) {
-                    return constants.NAMESPACE + ':rule:' + id;
-                }), next);
-            }
-        ], done);
-    };
+Database.deleteRule = async function (id) {
+    await Promise.all([
+        db.delete(constants.NAMESPACE + ':rule:' + id),
+        db.sortedSetRemove(constants.NAMESPACE + ':rule', id)
+    ])
+};
 
-    Database.updateRule = function (id, data, done) {
-        db.setObject(constants.NAMESPACE + ':rule:' + id, data, done);
-    };
+Database.getRule = async function (id) {
+    return await db.getObject(constants.NAMESPACE + ':rule:' + id);
+};
 
-})(module.exports);
+Database.getRules = async function () {
+    const ids = db.getSortedSetRange(constants.NAMESPACE + ':rule', 0, -1);
+    if (!ids.length) {
+        return ids;
+    }
+            
+    return await db.getObjects(ids.map(id => constants.NAMESPACE + ':rule:' + id));
+};
+
+Database.updateRule = async function (id, data) {
+    return await db.setObject(constants.NAMESPACE + ':rule:' + id, data);
+};
+
+module.exports = Database;
