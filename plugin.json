@@ -36,11 +36,6 @@
   "acpLessFiles": [
     "style/acp.less"
   ],
-  "scripts": [],
-  "staticDirs": {
-    "acp": "./client/acp",
-    "js": "./public/js"
-  },
   "templates": "./public/templates",
 	"settingsRoute": "/admin/plugins/embed"
 }
